@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>js game</title>
+</head>
+<style>
+    body {
+        background: #333;
+        display: flex;
+        justify-content: center;
+        align-content: center;
+    }
+
+    canvas {
+        background: whitesmoke;
+        border: 1px solid red;
+    }
+</style>
+<body>
+    <canvas id='canvas' width='640' height='480'></canvas>
+    <script src="Controller.js"></script>
+    <script src="Movement.js"></script>
+    <script src="Objects.js"></script>
+    <script src="Physics.js"></script>
+    <script src="Engine.js"></script>
+    <script>
+        const engine = new Engine;
+        engine.init();
+    </script>
+</body>
+</html>
