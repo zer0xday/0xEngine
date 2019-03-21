@@ -18,10 +18,8 @@ class Physics {
 
         collisionArray.forEach((el) => {
             if(hero.x2() >= el[0] && hero.x1() <= el[1]     // left right
-             ) {  // bottom top
-                console.log('collision');
-            } else {
-                console.log(el[2], hero.y1(), el[3], hero.y2());
+            && hero.y1() <= el[3] && hero.y2() >= el[2]) {  // bottom top
+                console.log('collision', hero.y1(), el[2], el[3]);
             }
         });
     }
@@ -44,6 +42,6 @@ class Physics {
 
     init() {
         this.screenCollision();
-        this.gravity();
+        // this.gravity();
     }
 }

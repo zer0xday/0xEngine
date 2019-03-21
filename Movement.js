@@ -22,6 +22,18 @@ class Movement {
             state = 'moving';
             direction = 'left';
         }
+        if(keyState[40] && !this.PHYSICS.screenCollision().bottom) {
+            position.y[0] += velocity;
+            position.y[1] += velocity;
+            state = 'moving';
+            direction = 'right';
+        }
+        if(keyState[38] && !this.PHYSICS.screenCollision().top) {
+            position.y[0] -= velocity;
+            position.y[1] -= velocity;
+            state = 'moving';
+            direction = 'left';
+        }
         if(keyState[32] && !this.PHYSICS.screenCollision().top) {
             position.y[0] -= this.object.jump;
             position.y[1] -= this.object.jump;

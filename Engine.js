@@ -25,7 +25,7 @@ class Engine {
         this.objects = [    // start X, start Y, object WIDTH, object HEIGHT, object COLOR
             // new Rect(0, Canvas.floor.height(), Canvas.floor.width(), Canvas.floor.heightPX, 'rgb(95,205, 0)'),
             new Rect(300, Canvas.floor.height() - 250, 50, 150, 'rgb(0, 0, 255)'),
-            new Hero(0, 0, 80, 80, 'rgb(255, 0, 0)'),  // hero
+            new Hero(0, 0, 40, 40, 'rgb(255, 0, 0)'),  // hero
         ];
         this.frame = 0;
         this.WALL = [];

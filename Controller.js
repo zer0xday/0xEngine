@@ -4,7 +4,9 @@ class Controller {
         this.allowedKEYS = [
             39, // right
             37, // left
-            32  // spacebar
+            32,  // spacebar
+            38,
+            40
         ];
     }
     keyDown() {

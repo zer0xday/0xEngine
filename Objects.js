@@ -35,12 +35,12 @@ class Hero {
         this.color = color;
         this.position = {
             x: [x, x + width],
-            y: [y + height, y]
+            y: [y, y + height]
         };
         this.state = null;
         this.direction = null;
         this.moving = false;
-        this.velocity = 5;
+        this.velocity = 2;
         this.jump = 9;
         this.acceleration = .5;
 
