@@ -1,47 +1,43 @@
 class Physics {
     constructor(object) {
         this.object = object;
-        this.GRAVITY = 7;
+        this.GRAVITY = 5;
     }
 
-    objectCollision(wall) {
-        let collisionArray = wall;
-        let hero = {
-            array: wall.pop(),
-            height() { return this.array[4] },
-            width() { return this.array[5] },
-            x1() { return this.array[0] },
-            x2() { return this.array[1] },
-            y1() { return this.array[2] },
-            y2() { return this.array[3] }
-        };
+    objectCollision() {
+        const engine = new Engine;
+        const collisionArray = engine.CollisionWALL;
+        let hero = this.object;
+        let collision = false;
 
         collisionArray.forEach((el) => {
-            if(hero.x2() >= el[0] && hero.x1() <= el[1]     // left right
-            && hero.y1() <= el[3] && hero.y2() >= el[2]) {  // bottom top
-                console.log('collision', hero.y1(), el[2], el[3]);
+            const { position } = hero;
+
+            if(position.x[1] >= el[0] && position.x[0] <= el[1]     // left right
+            && position.y[1] >= el[2] && position.y[0] <= el[3]) {  // bottom top
+                collision = true;
             }
         });
-    }
 
-    screenCollision() {
-        return {
-            right: this.object.screenCollision().right <= 0 ? true : false,
-            left: this.object.screenCollision().left <= 0 ? true : false,
-            top: this.object.screenCollision().top <= 0 ? true : false,
-            bottom: this.object.screenCollision().bottom <= 0 ? true : false,
-        }
+        return collision;
     }
 
     gravity() {
-        if(this.object.position.y[0] < Canvas.floor.height() - (this.object.height)) {
-            this.object.position.y[0] += this.GRAVITY;
-            this.object.position.y[1] += this.GRAVITY;
+        let { position, height, state, jumpVelocity } = this.object;
+
+        if(position.y[0] < Canvas.floor.height() - (height)) {
+            position.y[0] += this.GRAVITY;
+            position.y[1] += this.GRAVITY;
+        } else {
+            if('jumping' in state) {
+                position.y[0] -= jumpVelocity;
+                position.y[1] -= jumpVelocity;
+            }
         }
     }
 
     init() {
-        this.screenCollision();
-        // this.gravity();
+        // this.objectCollision();
+        this.gravity();
     }
 }

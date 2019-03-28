@@ -27,21 +27,14 @@ class Rect {
     }
 };
 
-class Hero {
+class Hero extends Rect{
     constructor(x, y, width, height, color) {
-        this.ctx = Canvas.ctx();
-        this.width = width;
-        this.height = height;
-        this.color = color;
-        this.position = {
-            x: [x, x + width],
-            y: [y, y + height]
-        };
-        this.state = null;
-        this.direction = null;
+        super(x, y, width, height, color, true);
+        this.state = { stand: true, moving: false, jumping: false };
+        this.direction = {};
         this.moving = false;
-        this.velocity = 2;
-        this.jump = 9;
+        this.velocity = 5;
+        this.jumpVelocity = (width + height) / 2;
         this.acceleration = .5;
 
         this.MOVEMENT = new Movement(this);
@@ -57,9 +50,14 @@ class Hero {
         };
     };
 
+    collisionCheck() {
+        this.MOVEMENT.predictMove();
+        if(!this.PHYSICS.objectCollision()) this.MOVEMENT.move();
+    }
+
     animate() {
-        this.PHYSICS.init();
-        this.MOVEMENT.init();
+        this.collisionCheck();
+        this.PHYSICS.gravity();
     }
 
     draw() {
@@ -67,11 +65,5 @@ class Hero {
 
         this.ctx.fillStyle = this.color;
         this.ctx.fillRect(this.position.x[0], this.position.y[0], this.width, this.height);
-    }
-}
-
-class Rect2 extends Rect {
-    constructor() {
-        super();
     }
 }

@@ -2,11 +2,11 @@ class Controller {
     constructor() {
         this.keyState = {};
         this.allowedKEYS = [
-            39, // right
-            37, // left
-            32,  // spacebar
-            38,
-            40
+            39,     // right
+            37,     // left
+            32,     // spacebar
+            // 38,     // top
+            // 40      // bottom
         ];
     }
     keyDown() {
