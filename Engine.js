@@ -25,8 +25,8 @@ class Engine {
         this.floor = new Rect(0, Canvas.floor.height(), Canvas.floor.width(), Canvas.floor.heightPX, 'rgb(95,205, 0)');
         this.hero = new Hero(0, 0, 80, 80, 'rgb(255, 0, 0)');  // hero
         this.objects = [    // start X, start Y, object WIDTH, object HEIGHT, object COLOR
-            new Rect(300, Canvas.floor.height() - 150, 350, 150, 'rgb(0, 0, 255)'),
-            new Rect(100, Canvas.floor.height() - 350, 50, 100, 'rgb(0, 0, 255)'),
+            new Rect(300, Canvas.floor.height() - 50, 150, 250, 'rgb(0, 0, 255)'),
+            new Rect(100, Canvas.floor.height() - 200, 50, 100, 'rgb(0, 0, 255)'),
         ];
         this.CollisionWALL = this.collisionStaticWallArray();
     };

@@ -26,20 +26,16 @@ class Movement {
     };
 
     move() {
-        let { position, velocity, jumpVelocity, direction } = this.object;
+        let { position, velocity, collision } = this.object;
         let keyState = this.CONTROLLER.init();
 
-        if(keyState[39]) {
+        if(keyState[39] && (!('right' in collision))) {
             position.x[0] += velocity;
             position.x[1] += velocity;
         }
-        if(keyState[37]) {
+        if(keyState[37] && (!('left' in collision))) {
             position.x[0] -= velocity;
             position.x[1] -= velocity;
         }
     };
-
-    init() {
-        this.move();
-    }
 }

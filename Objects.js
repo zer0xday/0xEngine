@@ -34,25 +34,18 @@ class Hero extends Rect{
         this.direction = {};
         this.moving = false;
         this.velocity = 5;
-        this.jumpVelocity = (width + height) / 2;
+        this.jumpVelocity = 2;
         this.acceleration = .5;
+        this.collision = {};
 
         this.MOVEMENT = new Movement(this);
         this.PHYSICS = new Physics(this);
     };
 
-    screenCollision() {
-        return {
-            top: this.position.y[0],
-            right: Canvas.resolution.width - (this.position.x[0] + this.width),
-            bottom: Canvas.resolution.height - (this.position.y[0] + this.height),
-            left: this.position.x[0]
-        };
-    };
-
     collisionCheck() {
         this.MOVEMENT.predictMove();
-        if(!this.PHYSICS.objectCollision()) this.MOVEMENT.move();
+        this.PHYSICS.objectCollision();
+        this.MOVEMENT.move();
     }
 
     animate() {
