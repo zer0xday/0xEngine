@@ -39,13 +39,20 @@ class Physics {
         if((position.y[0] < Canvas.floor.height() - (height)) && (!('bottom' in collision))) {
             position.y[0] += this.GRAVITY;
             position.y[1] += this.GRAVITY;
-        } else {
-            if('jumping' in state) {
-                if(!('top' in collision)) {
-                    position.y[0] -= jumpVelocity;
-                    position.y[1] -= jumpVelocity;
-                }
+        }
+
+        if('jumping' in state) {
+            if(!('top' in collision)) {
+                position.y[0] -= jumpVelocity;
+                position.y[1] -= jumpVelocity;
+            } else {
+                console.log(collision);
             }
         }
+    }
+
+    init() {
+        // this.objectCollision();
+        this.gravity();
     }
 }

@@ -1,5 +1,5 @@
 class Rect {
-    constructor(x, y, width, height, color, physicsOn = false) {
+    constructor(x, y, width, height, color) {
         this.ctx = Canvas.ctx();
         this.width = width;
         this.height = height;
@@ -8,8 +8,6 @@ class Rect {
             x: [x, x + width],
             y: [y, y + height]
         };
-        this.physicsOn = physicsOn;
-
         this.PHYSICS = new Physics(this);
     };
 
@@ -20,8 +18,6 @@ class Rect {
     };
 
     draw() {
-        if(this.physicsOn) this.PHYSICS.init();
-
         this.ctx.fillStyle = this.color;
         this.ctx.fillRect(this.position.x[0], this.position.y[0], this.width, this.height);
     }
@@ -29,12 +25,12 @@ class Rect {
 
 class Hero extends Rect{
     constructor(x, y, width, height, color) {
-        super(x, y, width, height, color, true);
+        super(x, y, width, height, color);
         this.state = { stand: true, moving: false, jumping: false };
         this.direction = {};
         this.moving = false;
         this.velocity = 5;
-        this.jumpVelocity = 2;
+        this.jumpVelocity = 20;
         this.acceleration = .5;
         this.collision = {};
 
