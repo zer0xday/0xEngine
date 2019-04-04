@@ -23,13 +23,9 @@ class Engine {
     constructor() {
         this.ctx = Canvas.ctx();
         // this.floor = new Rect(0, Canvas.floor.height(), Canvas.floor.width(), Canvas.floor.heightPX, 'rgb(95,205, 0)');
-        this.hero = new Hero(15, 15, 80, 80, 'rgb(255, 0, 0)');  // hero
+        this.hero = new Hero(300, 150, 80, 80, 'hero-sprite.png');  // hero
         this.objects = [    // start X, start Y, object WIDTH, object HEIGHT, object COLOR
-            new Rect(15, 0, Canvas.resolution.width - 10, 5, 'rgb(0,0,10)'),
-            new Rect(0, 15, 5, Canvas.resolution.height - 10, 'rgb(0,0,10)'),
-            new Rect(300, Canvas.floor.height() - 50, 150, 250, 'rgb(0, 0, 255)'),
-            new Rect(100, Canvas.floor.height() - 200, 50, 100, 'rgb(0, 0, 255)'),
-            new Rect(150, Canvas.floor.height() - 50, 50, 100, 'rgb(0, 0, 255)'),
+            new Rect(0, 0, 50, 50, 'wall.png'),
         ];
         this.CollisionWALL = this.collisionStaticWallArray();
     };
