@@ -30,9 +30,14 @@ class Hero extends Rect{
         this.direction = {};
         this.moving = false;
         this.velocity = 5;
-        this.jumpVelocity = 20;
+        this.jumpVelocity = this.velocity * 2;
         this.acceleration = .5;
-        this.collision = {};
+        this.collision = {
+            right: false,
+            left: false,
+            bottom: false,
+            top: false
+        };
 
         this.MOVEMENT = new Movement(this);
         this.PHYSICS = new Physics(this);
@@ -46,7 +51,7 @@ class Hero extends Rect{
 
     animate() {
         this.collisionCheck();
-        this.PHYSICS.gravity();
+        console.log(this.collision);
     }
 
     draw() {

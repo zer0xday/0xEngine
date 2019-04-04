@@ -20,8 +20,14 @@ class Movement {
             this.object.state = { moving: true };
             this.object.direction = { left: true };
         }
-        if(keyState[32]) {
-            this.object.state = { jumping: true };
+
+        if(keyState[40]) {
+            this.object.state = { moving: true };
+            this.object.direction = { bottom: true };
+        }
+        if(keyState[38]) {
+            this.object.state = { moving: true };
+            this.object.direction = { top: true };
         }
     };
 
@@ -29,13 +35,22 @@ class Movement {
         let { position, velocity, collision } = this.object;
         let keyState = this.CONTROLLER.init();
 
-        if(keyState[39] && (!('right' in collision))) {
+        if(keyState[39] && !collision.right) {
             position.x[0] += velocity;
             position.x[1] += velocity;
         }
-        if(keyState[37] && (!('left' in collision))) {
+        if(keyState[37] && !collision.left) {
             position.x[0] -= velocity;
             position.x[1] -= velocity;
+        }
+
+        if(keyState[40] && !collision.bottom) {
+            position.y[0] += velocity;
+            position.y[1] += velocity;
+        }
+        if(keyState[38] && !collision.top) {
+            position.y[0] -= velocity;
+            position.y[1] -= velocity;
         }
     };
 }

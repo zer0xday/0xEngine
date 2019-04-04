@@ -5,8 +5,8 @@ class Controller {
             39,     // right
             37,     // left
             32,     // spacebar
-            // 38,     // top
-            // 40      // bottom
+            38,     // top
+            40      // bottom
         ];
     }
     keyDown() {
