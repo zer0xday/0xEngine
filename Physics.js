@@ -41,9 +41,4 @@ class Physics {
             position.y[1] += this.GRAVITY;
         }
     }
-
-    init() {
-        // this.objectCollision();
-        // this.gravity();
-    }
 }

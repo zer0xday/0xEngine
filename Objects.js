@@ -28,8 +28,9 @@ class Rect {
 class Hero extends Rect{
     constructor(x, y, width, height, color) {
         super(x, y, width, height, color);
-        this.state = { stand: true, moving: false, jumping: false };
+        this.state = { stand: true, moving: false };
         this.direction = {};
+        this.shooting = false;
         this.moving = false;
         this.velocity = 5;
         this.jumpVelocity = this.velocity * 2;
@@ -66,9 +67,9 @@ class Hero extends Rect{
         img.src = src;
 
         const sprite = {
-            sH: 64, //height
-            sW: 64, //width
-            sX: 64, //pos x
+            sH: 64, // height
+            sW: 64, // width
+            sX: 64, // pos x
             sY: 64, // pos y
         };
 
@@ -84,19 +85,58 @@ class Hero extends Rect{
             this.sprite.direction = 3;
         }
 
-        if(this.frame % 3 === 0) {
-            if(this.sprite.frame > 7) {
-                this.sprite.frame = 0;
+        const { stand } = this.state;
+        if(!stand) {
+            if(this.frame % 5 === 0) {
+                if(this.sprite.frame > 6) {
+                    this.sprite.frame = 0;
+                }
+                this.sprite.frame++;
             }
-            this.sprite.frame++;
+        } else {
+            this.sprite.frame = 0;
         }
 
-        return ctx.drawImage(img, sX * this.sprite.frame, sY * this.sprite.direction, sW, sH, position.x[0], position.y[0], width, height);
+        ctx.drawImage(
+            img,
+            sX * this.sprite.frame, sY * this.sprite.direction,
+            sW, sH,
+            position.x[0], position.y[0],
+            width, height
+        );
     };
+
+    createProjectile() {
+        const { shooting, ctx, position, direction } = this;
+
+        if(shooting) {  // it has to be depended on direction *TODO*
+            ctx.fillStyle = "#FF0000";
+            ctx.beginPath();
+
+            if('top' in direction) {
+                ctx.arc((position.x[0] + position.x[1]) / 2, position.y[0], 10, 0, 2 * Math.PI);
+            } else if('left' in direction) {
+                ctx.arc(position.x[0], (position.y[0] + position.y[1]) / 2, 10, 0, 2 * Math.PI);
+            } else if('bottom' in direction) {
+                ctx.arc((position.x[0] + position.x[1]) / 2, position.y[1], 10, 0, 2 * Math.PI);
+            } else if('right' in direction) {
+                ctx.arc(position.x[1], (position.y[0] + position.y[1]) / 2, 10, 0, 2 * Math.PI);
+            }
+            // direction cannot be null all the time if not moving
+            console.log(direction);
+
+            ctx.fill();
+        }
+    };
+
+    animateProjectile() {
+        this.createProjectile();
+    }
 
     draw() {
         this.frame++;
         this.collisionCheck();
         this.animateSprite();
+        this.animateProjectile();
     }
 }
