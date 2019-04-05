@@ -1,142 +1,131 @@
+class Map {
+    constructor() {
+        this.walls = [];
+        this.trees = [
+            new Rect(150, 150, 26, 72, 136, 'tree.png'),
+            new Rect(50, 50, 26, 72, 136, 'tree.png'),
+        ];
+        this.hero = new Hero(
+            300, 150, 20,       // x, y, z
+            32, 50,             // width, height
+            'hero-sprites.png'  // src
+        );
+        this.staticObjects = this.staticObjects(this.trees);
+        this.staticWallsArray = this.staticWallsArray(this.walls);
+        this.staticObjectsArray = this.staticObjectsArray(this.trees);
+    };
+
+    staticObjects(objects) {
+        let array = [];
+        return array.concat(objects);
+    }
+
+    staticWallsArray(objects) {
+        let array = [];
+        for(let i = 0; i < objects.length; i++) {
+            array.push([
+                objects[i].position.x[0],
+                objects[i].position.x[1],
+                objects[i].position.y[0],
+                objects[i].position.y[1],
+            ]);
+        }
+        return array;
+    }
+
+    staticObjectsArray(objects) {
+        let array = [];
+        for(let i = 0; i < objects.length; i++) {
+            array.push([
+                objects[i].position.x[0],
+                objects[i].position.x[1],
+                objects[i].position.y[0],
+                objects[i].position.y[1],
+                objects[i].position.z[0],
+                objects[i].position.z[1]
+            ]);
+        }
+        return array;
+    }
+
+    init() {
+        let array = [];
+        return array.concat(
+            this.walls, this.trees, this.hero
+        );
+    }
+}
+
 class Rect {
-    constructor(x, y, width, height, src) {
+    constructor(x, y, z, width, height, src) {
         this.ctx = Canvas.ctx();
         this.width = width;
         this.height = height;
+        this.depth = z;
         this.src = '/sprites/' + src;
         this.position = {
             x: [x, x + width],
-            y: [y, y + height]
+            y: [y, y + height],
+            z: [(y + height) - z, y + height]
         };
-        this.PHYSICS = new Physics(this);
     };
 
-    screenCollision() {
-        return {
-            bottom: Canvas.resolution.height - (this.position.y[0] + this.height)
-        }
-    };
+    collisionRect() {
+        const { x, z } = this.position;
+        const { ctx } = this;
+        ctx.beginPath();
+        ctx.rect(x[0], z[0], this.width, this.depth);
+        ctx.stroke();
+    }
 
     draw() {
+        const { ctx } = this;
         let img = new Image();
         img.src = this.src;
 
-        this.ctx.drawImage(img, this.position.x[0], this.position.y[0], this.width, this.height);
+        this.collisionRect();
+
+        const { x, y } = this.position;
+        ctx.drawImage(img, x[0], y[0], this.width, this.height);
     }
 };
 
-class Hero extends Rect{
-    constructor(x, y, width, height, color) {
-        super(x, y, width, height, color);
-        this.state = { stand: true, moving: false };
-        this.direction = {};
-        this.shooting = false;
-        this.moving = false;
-        this.velocity = 5;
-        this.jumpVelocity = this.velocity * 2;
-        this.acceleration = .5;
-        this.collision = {
-            right: false,
-            left: false,
-            bottom: false,
-            top: false
-        };
-        this.frame = 0,
+class Wall extends Rect {
+    constructor(x, y, z, width, height, src) {
+        super(x, y, z, width, height, src);
         this.sprite = {
-            direction: 2, // lets start with sprite directed to the bottom
-            frame: 0
-        };
-
-        this.MOVEMENT = new Movement(this);
-        this.PHYSICS = new Physics(this);
-    };
-
-    collisionCheck() {
-        this.MOVEMENT.predictMove();
-        this.PHYSICS.objectCollision();
-        this.MOVEMENT.move();
+            height: 64,
+            width: 64
+        }
+        this.direction = this.wallDirection();
     }
 
-    animateSprite() {
-        let {
-            src, ctx,
-            direction, position,
-            width, height
-        } = this;
-        let img = new Image();
-        img.src = src;
-
-        const sprite = {
-            sH: 64, // height
-            sW: 64, // width
-            sX: 64, // pos x
-            sY: 64, // pos y
-        };
-
-        const { sH, sW, sX, sY } = sprite;
-
-        if('top' in direction) {
-            this.sprite.direction = 0;
-        } else if('left' in direction) {
-            this.sprite.direction = 1;
-        } else if('bottom' in direction) {
-            this.sprite.direction = 2;
-        } else if('right' in direction) {
-            this.sprite.direction = 3;
-        }
-
-        const { stand } = this.state;
-        if(!stand) {
-            if(this.frame % 5 === 0) {
-                if(this.sprite.frame > 6) {
-                    this.sprite.frame = 0;
-                }
-                this.sprite.frame++;
-            }
+    wallDirection() {
+        if(this.width > this.height) {
+            return 'right';
         } else {
-            this.sprite.frame = 0;
+            return 'bottom';
         }
-
-        ctx.drawImage(
-            img,
-            sX * this.sprite.frame, sY * this.sprite.direction,
-            sW, sH,
-            position.x[0], position.y[0],
-            width, height
-        );
-    };
-
-    createProjectile() {
-        const { shooting, ctx, position, direction } = this;
-
-        if(shooting) {  // it has to be depended on direction *TODO*
-            ctx.fillStyle = "#FF0000";
-            ctx.beginPath();
-
-            if('top' in direction) {
-                ctx.arc((position.x[0] + position.x[1]) / 2, position.y[0], 10, 0, 2 * Math.PI);
-            } else if('left' in direction) {
-                ctx.arc(position.x[0], (position.y[0] + position.y[1]) / 2, 10, 0, 2 * Math.PI);
-            } else if('bottom' in direction) {
-                ctx.arc((position.x[0] + position.x[1]) / 2, position.y[1], 10, 0, 2 * Math.PI);
-            } else if('right' in direction) {
-                ctx.arc(position.x[1], (position.y[0] + position.y[1]) / 2, 10, 0, 2 * Math.PI);
-            }
-            // direction cannot be null all the time if not moving
-            console.log(direction);
-
-            ctx.fill();
-        }
-    };
-
-    animateProjectile() {
-        this.createProjectile();
     }
 
     draw() {
-        this.frame++;
-        this.collisionCheck();
-        this.animateSprite();
-        this.animateProjectile();
+        const { ctx, sprite, direction } = this;
+
+        let img = new Image();
+        img.src = this.src;
+
+        const wallParts = {
+            counter: direction === 'right'
+                ? Math.ceil(this.width / sprite.width)
+                : Math.ceil(this.height / sprite.height),
+        };
+
+        for(let i = 0; i < wallParts.counter; i++) {
+            if(direction === 'right') {
+                ctx.drawImage(img, sprite.width * i, this.position.y[0], sprite.width, sprite.height);
+            } else if(direction === 'bottom') {
+                ctx.drawImage(img, this.position.x[0], sprite.height * i, sprite.width, sprite.height);
+            }
+        }
     }
 }

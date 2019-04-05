@@ -9,27 +9,32 @@ class Movement {
         let keyState = this.CONTROLLER.init();
 
         this.object.state = { stand: true };
-        this.object.direction = {};
+        this.object.direction = {
+            right: false,
+            left: false,
+            bottom: false,
+            top: false
+        };
 
         // right arrow
         if(keyState[39]) {
             this.object.state = { moving: true };
-            this.object.direction = { right: true };
+            this.object.direction.right = true;
         }
         // left arrow
         if(keyState[37]) {
             this.object.state = { moving: true };
-            this.object.direction = { left: true };
+            this.object.direction.left = true;
         }
         // down arrow
         if(keyState[40]) {
             this.object.state = { moving: true };
-            this.object.direction = { bottom: true };
+            this.object.direction.bottom = true;
         }
         // up arrow
         if(keyState[38]) {
             this.object.state = { moving: true };
-            this.object.direction = { top: true };
+            this.object.direction.top = true;
         }
 
         // spacebar
@@ -56,10 +61,14 @@ class Movement {
         if(keyState[40] && !collision.bottom) {
             position.y[0] += velocity;
             position.y[1] += velocity;
+            position.z[0] += velocity;
+            position.z[1] += velocity;
         }
         if(keyState[38] && !collision.top) {
             position.y[0] -= velocity;
             position.y[1] -= velocity;
+            position.z[0] -= velocity;
+            position.z[1] -= velocity;
         }
     };
 }
