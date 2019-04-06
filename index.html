@@ -13,14 +13,19 @@
         justify-content: center;
         align-content: center;
     }
-
     canvas {
+        position: absolute;
         background: whitesmoke;
-        border: 1px solid red;
     }
+    canvas#area         {z-index: 0}
+    canvas#background   {z-index: 1; background: transparent}
+    canvas#foreground   {z-index: 2; background: transparent}
 </style>
 <body>
-    <canvas id='canvas' width='640' height='480'></canvas>
+    <canvas id='area' width="640" height="480"></canvas>
+    <canvas id='background' width="640" height="480"></canvas>
+    <canvas id='foreground' width="640" height="480"></canvas>
+
     <script src='Canvas.js'></script>
     <script src='Objects.js'></script>
     <script src='Engine.js'></script>

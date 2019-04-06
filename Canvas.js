@@ -1,20 +1,14 @@
-const Canvas = {
-    element: document.getElementById('canvas'),
-    resolution: {
-        width: 640,
-        height: 480
-    },
-    floor: {
-        heightPX: 100,
-        height() {
-            return Canvas.resolution.height - this.heightPX;
+class Canvas {
+    constructor() {
+        this.area = document.querySelector('canvas#area');
+        this.background = document.querySelector('canvas#background');
+        this.foreground = document.querySelector('canvas#foreground');
+        this.resolution = {
+            width: this.area.width,
+            height: this.area.height
         },
-        width() {
-            return Canvas.resolution.width;
-        }
-    },
-    offset: 15,
-    ctx() {
-        return this.element.getContext('2d');
-    },
-};
+        this.areaCtx = this.area.getContext('2d');
+        this.bgCtx = this.background.getContext('2d');
+        this.fgCtx = this.foreground.getContext('2d');
+    }
+}

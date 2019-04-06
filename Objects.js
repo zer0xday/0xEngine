@@ -1,6 +1,10 @@
 class Map {
     constructor() {
-        this.walls = [];
+        this.ground = new Ground(64, 64, 64, 64, 'grass.png')
+        this.walls = [
+            new Wall(0, 0, 64, 64*5, 64, 'wall-top.png'),
+            new Wall(64*5 - 32, 12, 32, 128, 240, 'wall-right-fix.png'),
+        ];
         this.trees = [
             new Rect(150, 150, 26, 72, 136, 'tree.png'),
             new Rect(50, 50, 26, 72, 136, 'tree.png'),
@@ -10,14 +14,16 @@ class Map {
             32, 50,             // width, height
             'hero-sprites.png'  // src
         );
-        this.staticObjects = this.staticObjects(this.trees);
+        this.staticObjects = this.staticObjects(
+            this.walls, this.trees
+        );
         this.staticWallsArray = this.staticWallsArray(this.walls);
-        this.staticObjectsArray = this.staticObjectsArray(this.trees);
+        this.staticObjectsArray = this.staticObjectsArray(this.trees, this.walls);
     };
 
-    staticObjects(objects) {
+    staticObjects(...objects) {
         let array = [];
-        return array.concat(objects);
+        return array.concat(...objects);
     }
 
     staticWallsArray(objects) {
@@ -27,23 +33,25 @@ class Map {
                 objects[i].position.x[0],
                 objects[i].position.x[1],
                 objects[i].position.y[0],
-                objects[i].position.y[1],
+                objects[i].position.y[1]
             ]);
         }
         return array;
     }
 
-    staticObjectsArray(objects) {
+    staticObjectsArray(...objects) {
         let array = [];
-        for(let i = 0; i < objects.length; i++) {
-            array.push([
-                objects[i].position.x[0],
-                objects[i].position.x[1],
-                objects[i].position.y[0],
-                objects[i].position.y[1],
-                objects[i].position.z[0],
-                objects[i].position.z[1]
-            ]);
+        for(let obj of objects) {
+            obj.forEach( (el) => {
+                array.push([
+                    el.position.x[0],
+                    el.position.x[1],
+                    el.position.y[0],
+                    el.position.y[1],
+                    el.position.z[0],
+                    el.position.z[1]
+                ]);
+            });
         }
         return array;
     }
@@ -56,17 +64,46 @@ class Map {
     }
 }
 
-class Rect {
-    constructor(x, y, z, width, height, src) {
-        this.ctx = Canvas.ctx();
+class Ground {
+    constructor(x, y, width, height, src) {
+        this.CANVAS = new Canvas;
+        this.ctx = this.CANVAS.bgCtx;
+        this.x = x;
+        this.y = y;
         this.width = width;
         this.height = height;
-        this.depth = z;
+        this.src = '/sprites/' + src;
+    }
+
+    draw() {
+        let img = new Image;
+        img.src = this.src;
+
+        const { ctx, x, y, width, height } = this;
+        for(let j = 0; j < 8; j++) {
+            for(let i = 0; i < 10; i++) {
+                ctx.drawImage(
+                    img,
+                    (x * i), (y * j),
+                    width, height
+                );
+            }
+        }
+    }
+}
+
+class Rect {
+    constructor(x, y, depth, width, height, src) {
+        this.CANVAS = new Canvas;
+        this.ctx = this.CANVAS.fgCtx;
+        this.width = width;
+        this.height = height;
+        this.depth = depth;
         this.src = '/sprites/' + src;
         this.position = {
             x: [x, x + width],
             y: [y, y + height],
-            z: [(y + height) - z, y + height]
+            z: [(y + height) - depth, y + height]
         };
     };
 
@@ -80,7 +117,7 @@ class Rect {
 
     draw() {
         const { ctx } = this;
-        let img = new Image();
+        let img = new Image;
         img.src = this.src;
 
         this.collisionRect();
@@ -91,8 +128,8 @@ class Rect {
 };
 
 class Wall extends Rect {
-    constructor(x, y, z, width, height, src) {
-        super(x, y, z, width, height, src);
+    constructor(x, y, depth, width, height, src) {
+        super(x, y, depth, width, height, src);
         this.sprite = {
             height: 64,
             width: 64
@@ -109,9 +146,9 @@ class Wall extends Rect {
     }
 
     draw() {
-        const { ctx, sprite, direction } = this;
+        const { ctx, sprite, direction, position } = this;
 
-        let img = new Image();
+        let img = new Image;
         img.src = this.src;
 
         const wallParts = {
@@ -119,12 +156,11 @@ class Wall extends Rect {
                 ? Math.ceil(this.width / sprite.width)
                 : Math.ceil(this.height / sprite.height),
         };
-
         for(let i = 0; i < wallParts.counter; i++) {
             if(direction === 'right') {
-                ctx.drawImage(img, sprite.width * i, this.position.y[0], sprite.width, sprite.height);
+                ctx.drawImage(img, position.x[0] + (sprite.width * i), position.y[0], sprite.width, sprite.height);
             } else if(direction === 'bottom') {
-                ctx.drawImage(img, this.position.x[0], sprite.height * i, sprite.width, sprite.height);
+                ctx.drawImage(img, position.x[0], position.y[0] + (sprite.height * i), sprite.width, sprite.height);
             }
         }
     }

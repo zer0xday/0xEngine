@@ -4,12 +4,14 @@ class Physics {
         this.GRAVITY = 5;
     }
 
-    objectCollision() {
+    objectCollision(arrayProperty) {
         const map = new Map;
         const collisionArray = map.staticObjectsArray;
         let hero = this.object;
         hero.collision.right = false; hero.collision.left = false;
         hero.collision.bottom = false; hero.collision.top = false;
+
+        // 'Z' VECTOR TO FIX!!!
 
         collisionArray.forEach((el) => {
             const { position } = hero;

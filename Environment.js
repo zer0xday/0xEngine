@@ -1,6 +1,6 @@
 class Hero extends Rect {
-    constructor(x, y, z, width, height, src) {
-        super(x, y, z, width, height, src);
+    constructor(x, y, depth, width, height, src) {
+        super(x, y, depth, width, height, src);
         this.state = { stand: true, moving: false };
         this.direction = {
             right: false,
@@ -106,7 +106,8 @@ class Hero extends Rect {
 
 class Projectile {
     constructor(owner) {
-        this.ctx = Canvas.ctx();
+        this.CANVAS = new Canvas;
+        this.ctx = this.CANVAS.fgCtx;
         this.owner = owner;
         this.active = false;
         this.velocity = 10;
