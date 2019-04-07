@@ -2,8 +2,8 @@ class Map {
     constructor() {
         this.ground = new Ground(64, 64, 64, 64, 'grass.png')
         this.walls = [
-            new Wall(0, 0, 64, 64*5, 64, 'wall-top.png'),
-            new Wall(64*5 - 32, 12, 32, 128, 240, 'wall-right-fix.png'),
+            new Wall(0, 0, 'horizontal', 5, 16, 64, 64, 'wall-top.png'),
+            new Wall(64 * 5, 0, 'vertical', 5, 64, 64, 64, 'wall-right-fix.png')
         ];
         this.trees = [
             new Rect(150, 150, 26, 72, 136, 'tree.png'),
@@ -108,10 +108,11 @@ class Rect {
     };
 
     collisionRect() {
-        const { x, z } = this.position;
+        const { x, y, z } = this.position;
         const { ctx } = this;
         ctx.beginPath();
         ctx.rect(x[0], z[0], this.width, this.depth);
+        ctx.strokeStyle = '#ff0000';
         ctx.stroke();
     }
 
@@ -128,40 +129,88 @@ class Rect {
 };
 
 class Wall extends Rect {
-    constructor(x, y, depth, width, height, src) {
-        super(x, y, depth, width, height, src);
-        this.sprite = {
-            height: 64,
-            width: 64
-        }
-        this.direction = this.wallDirection();
+    constructor(x, y, direction, parts, depth, sWidth, sHeight, src) {
+        super();
+        this.depth = depth;
+        this.src = '/sprites/' + src;
+        this.parts = parts;
+        this.sWidth = sWidth;
+        this.sHeight = sHeight;
+        this.direction = direction;
+        this.width = this.calculateDimensions(direction).width;
+        this.height = this.calculateDimensions(direction).height;
+        this.position = {
+            x: [x, x + this.width],
+            y: [y, y + this.height],
+            z: [(y + this.height) - this.depth, y + this.height]
+        };
     }
 
-    wallDirection() {
-        if(this.width > this.height) {
-            return 'right';
-        } else {
-            return 'bottom';
+    calculateDimensions(direction) {
+        const { sWidth, sHeight, parts } = this;
+        let width, height;
+
+        switch(direction) {
+            case 'horizontal':
+                width = sWidth * parts;
+                height = sHeight;
+                break;
+
+            case 'vertical':
+                width = sWidth;
+                height = sHeight * parts;
+                break;
+
+            default:
+                width = 0,
+                height = 0;
+                break;
+        }
+        return {
+            width: width,
+            height: height
+        }
+    }
+
+    buildWall(direction) {
+        const {
+            ctx, src,
+            position, parts,
+            sWidth, sHeight
+        } = this;
+
+        let img = new Image;
+        img.src = src;
+
+        switch(direction) {
+            case 'horizontal':
+                for(let i = 0; i < parts; i++) {
+                    ctx.drawImage(
+                        img,
+                        position.x[0] + (sWidth * i), position.y[0],
+                        sWidth, sHeight,
+                    );
+                }
+                break;
+
+            case 'vertical':
+                for(let i = 0; i < parts; i++) {
+                    ctx.drawImage(
+                        img,
+                        position.x[0], position.y[0] + (sHeight * i),
+                        sWidth, sHeight,
+                    );
+                }
+                break;
+
+            default: break;
         }
     }
 
     draw() {
-        const { ctx, sprite, direction, position } = this;
-
-        let img = new Image;
-        img.src = this.src;
-
-        const wallParts = {
-            counter: direction === 'right'
-                ? Math.ceil(this.width / sprite.width)
-                : Math.ceil(this.height / sprite.height),
-        };
-        for(let i = 0; i < wallParts.counter; i++) {
-            if(direction === 'right') {
-                ctx.drawImage(img, position.x[0] + (sprite.width * i), position.y[0], sprite.width, sprite.height);
-            } else if(direction === 'bottom') {
-                ctx.drawImage(img, position.x[0], position.y[0] + (sprite.height * i), sprite.width, sprite.height);
-            }
-        }
+        const { direction } = this;
+        this.buildWall(direction);
+        this.collisionRect();
+        console.log(this.position.z[0], this.position.z[1]);
     }
 }

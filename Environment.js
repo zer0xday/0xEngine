@@ -101,6 +101,7 @@ class Hero extends Rect {
         this.collisionCheck();
         this.animateSprite();
         this.shotsFired();
+        this.collisionRect();
     }
 }
 
