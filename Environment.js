@@ -28,7 +28,7 @@ class Hero extends Rect {
 
     collisionCheck() {
         this.MOVEMENT.predictMove();
-        this.PHYSICS.objectCollision();
+        this.PHYSICS.collisionDetection();
         this.MOVEMENT.move();
     }
 
@@ -105,12 +105,31 @@ class Hero extends Rect {
     }
 }
 
+class Enemy extends Hero {
+    constructor(x, y, depth, width, height, src) {
+        super(x, y, depth, width, height, src);
+    }
+
+    moveBot() {
+        this.MOVEMENT.moveAI();
+    }
+
+    draw() {
+        this.frame++;
+        this.collisionCheck();
+        this.moveBot();
+        this.animateSprite();
+        this.collisionRect();
+    }
+}
+
+
 class Projectile {
     constructor(owner) {
         this.CANVAS = new Canvas;
         this.ctx = this.CANVAS.fgCtx;
         this.owner = owner;
-        this.active = false;
+        this.active = owner.shooting;
         this.velocity = 10;
         this.position = {
             x: [this.owner.position.x[0], this.owner.position.x[1]],
@@ -124,15 +143,15 @@ class Projectile {
         this.ctx.beginPath();
 
         const { top, right, bottom, left } = this.direction;
-        const { position } = this;
+        const { x, y } = this.position;
         if(top) {
-            this.ctx.arc((position.x[0] + position.x[1]) / 2, position.y[0], 10, 0, 2 * Math.PI);
+            this.ctx.arc( (x[0] + x[1]) / 2, y[0], 10, 0, 2 * Math.PI);
         } else if(left) {
-            this.ctx.arc(position.x[0], (position.y[0] + position.y[1]) / 2, 10, 0, 2 * Math.PI);
+            this.ctx.arc( x[0], (y[0] + y[1]) / 2, 10, 0, 2 * Math.PI);
         } else if(bottom) {
-            this.ctx.arc((position.x[0] + position.x[1]) / 2, position.y[1], 10, 0, 2 * Math.PI);
+            this.ctx.arc( (x[0] + x[1]) / 2, y[1], 10, 0, 2 * Math.PI);
         } else if(right) {
-            this.ctx.arc(position.x[1], (position.y[0] + position.y[1]) / 2, 10, 0, 2 * Math.PI);
+            this.ctx.arc( x[1], (y[0] + y[1]) / 2, 10, 0, 2 * Math.PI);
         }
 
         this.ctx.fill();

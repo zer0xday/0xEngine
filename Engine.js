@@ -9,6 +9,7 @@ class Engine {
         this.MAP = new Map;
         this.GROUND = this.MAP.ground;
         this.staticObjects = this.MAP.staticObjects;
+        this.enemies = this.MAP.enemies;
         this.HERO = this.MAP.hero;
     };
 
@@ -25,6 +26,9 @@ class Engine {
         // draw objects
         for(let obj of this.staticObjects) {
             obj.draw();
+        }
+        for(let enemy of this.enemies) {
+            enemy.draw();
         }
         // draw hero
         this.HERO.draw();

@@ -2,22 +2,30 @@ class Map {
     constructor() {
         this.ground = new Ground(64, 64, 64, 64, 'grass.png')
         this.walls = [
-            new Wall(0, 0, 'horizontal', 5, 16, 64, 64, 'wall-top.png'),
-            new Wall(64 * 5, 0, 'vertical', 5, 64, 64, 64, 'wall-right-fix.png')
+            new Wall(80, 50, 'horizontal', 5, 64 / 4, 64, 64, 'wall-top.png'),
+            new Wall( (64 * 5) + 80, 50, 'vertical', 5, 16, 16, 64, 'wall-right-roof.png', 0, 48, 48),
+            new Wall(96, (64 * 6) - 14, 'horizontal', 5, 64 / 4, 64, 64, 'wall-top.png'),
         ];
         this.trees = [
-            new Rect(150, 150, 26, 72, 136, 'tree.png'),
-            new Rect(50, 50, 26, 72, 136, 'tree.png'),
+            // new Rect(150, 150, 16, 72, 136, 'tree.png'),
+            new Rect(50, 50, 16, 72, 136, 'tree.png', 10),
         ];
+        this.enemies = [
+            new Enemy(
+                500, 200, 10,       // x, y, z
+                32, 50,             // width, height
+                'hero-sprites.png'  // src
+            )
+        ]
         this.hero = new Hero(
-            300, 150, 20,       // x, y, z
+            300, 150, 10,       // x, y, z
             32, 50,             // width, height
             'hero-sprites.png'  // src
         );
         this.staticObjects = this.staticObjects(
             this.walls, this.trees
         );
-        this.staticWallsArray = this.staticWallsArray(this.walls);
+        this.staticWallsArray = this.staticObjectsArray(this.walls);
         this.staticObjectsArray = this.staticObjectsArray(this.trees, this.walls);
     };
 
@@ -26,30 +34,18 @@ class Map {
         return array.concat(...objects);
     }
 
-    staticWallsArray(objects) {
-        let array = [];
-        for(let i = 0; i < objects.length; i++) {
-            array.push([
-                objects[i].position.x[0],
-                objects[i].position.x[1],
-                objects[i].position.y[0],
-                objects[i].position.y[1]
-            ]);
-        }
-        return array;
-    }
-
     staticObjectsArray(...objects) {
         let array = [];
         for(let obj of objects) {
             obj.forEach( (el) => {
                 array.push([
-                    el.position.x[0],
-                    el.position.x[1],
-                    el.position.y[0],
+                    el.position.x[0] + el.offset.x,
+                    el.position.x[1] - el.offset.x,
+                    el.position.y[0] + el.offset.y,
                     el.position.y[1],
                     el.position.z[0],
-                    el.position.z[1]
+                    el.position.z[1] + el.offset.z,
+                    el.type
                 ]);
             });
         }
@@ -64,36 +60,12 @@ class Map {
     }
 }
 
-class Ground {
-    constructor(x, y, width, height, src) {
-        this.CANVAS = new Canvas;
-        this.ctx = this.CANVAS.bgCtx;
-        this.x = x;
-        this.y = y;
-        this.width = width;
-        this.height = height;
-        this.src = '/sprites/' + src;
-    }
-
-    draw() {
-        let img = new Image;
-        img.src = this.src;
-
-        const { ctx, x, y, width, height } = this;
-        for(let j = 0; j < 8; j++) {
-            for(let i = 0; i < 10; i++) {
-                ctx.drawImage(
-                    img,
-                    (x * i), (y * j),
-                    width, height
-                );
-            }
-        }
-    }
-}
-
 class Rect {
-    constructor(x, y, depth, width, height, src) {
+    constructor(
+            x, y, depth, width, height, src,
+            offsetX = null, offsetY = null, offsetZ = null
+        ) {
+        this.type = this.constructor.name;
         this.CANVAS = new Canvas;
         this.ctx = this.CANVAS.fgCtx;
         this.width = width;
@@ -101,17 +73,23 @@ class Rect {
         this.depth = depth;
         this.src = '/sprites/' + src;
         this.position = {
-            x: [x, x + width],
-            y: [y, y + height],
-            z: [(y + height) - depth, y + height]
+            x: [x, x + this.width],
+            y: [y, y + this.height],
+            z: [(y + this.height) - depth, y + this.height]
         };
+        this.offset = {
+            x: offsetX,
+            y: offsetY,
+            z: offsetZ,
+        }
     };
 
     collisionRect() {
         const { x, y, z } = this.position;
-        const { ctx } = this;
+        const { ctx, width, height, depth, offset } = this;
         ctx.beginPath();
-        ctx.rect(x[0], z[0], this.width, this.depth);
+        ctx.rect(x[0], y[0], width, height);
+        ctx.rect(x[0] + offset.x, z[0], width - offset.x * 2, depth);
         ctx.strokeStyle = '#ff0000';
         ctx.stroke();
     }
@@ -129,8 +107,12 @@ class Rect {
 };
 
 class Wall extends Rect {
-    constructor(x, y, direction, parts, depth, sWidth, sHeight, src) {
+    constructor(
+            x, y, direction, parts, depth, sWidth, sHeight,
+            src, offsetX = null, offsetY = null, offsetZ = null
+        ) {
         super();
+        this.type = this.constructor.name;
         this.depth = depth;
         this.src = '/sprites/' + src;
         this.parts = parts;
@@ -144,13 +126,40 @@ class Wall extends Rect {
             y: [y, y + this.height],
             z: [(y + this.height) - this.depth, y + this.height]
         };
+        this.offset = {
+            x: offsetX,
+            y: offsetY,
+            z: offsetZ,
+        }
+    };
+
+    calculatePosition() {
+        const { direction, width, height, depth } = this;
+
+        switch(direction.toLowerCase()) {
+            case 'horizontal':
+                return {
+                    x: [x, x + width],
+                    y: [y, y + height],
+                    z: [(y + height) - depth, y + height]
+                }
+
+            case 'vertical':
+                return {
+                    x: [x, x + width],
+                    y: [y + 48, y + height],
+                    z: [(y + height) - depth, y + height]
+                }
+
+            default: break;
+        }
     }
 
     calculateDimensions(direction) {
         const { sWidth, sHeight, parts } = this;
         let width, height;
 
-        switch(direction) {
+        switch(direction.toLowerCase()) {
             case 'horizontal':
                 width = sWidth * parts;
                 height = sHeight;
@@ -182,7 +191,7 @@ class Wall extends Rect {
         let img = new Image;
         img.src = src;
 
-        switch(direction) {
+        switch(direction.toLowerCase()) {
             case 'horizontal':
                 for(let i = 0; i < parts; i++) {
                     ctx.drawImage(
@@ -211,6 +220,33 @@ class Wall extends Rect {
         const { direction } = this;
         this.buildWall(direction);
         this.collisionRect();
-        console.log(this.position.z[0], this.position.z[1]);
+    }
+}
+
+class Ground {
+    constructor(x, y, width, height, src) {
+        this.CANVAS = new Canvas;
+        this.ctx = this.CANVAS.bgCtx;
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = height;
+        this.src = '/sprites/' + src;
+    }
+
+    draw() {
+        let img = new Image;
+        img.src = this.src;
+
+        const { ctx, x, y, width, height } = this;
+        for(let j = 0; j < 8; j++) {
+            for(let i = 0; i < 10; i++) {
+                ctx.drawImage(
+                    img,
+                    (x * i), (y * j),
+                    width, height
+                );
+            }
+        }
     }
 }

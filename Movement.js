@@ -71,4 +71,38 @@ class Movement {
             position.z[1] -= velocity;
         }
     };
+
+    moveAI() {
+        let {
+            position, direction, velocity,
+            collision, frame, sprite
+        } = this.object;
+
+        this.object.direction = {
+            right: false,
+            left: false,
+            bottom: false,
+            top: false
+        };
+
+        const getRandom = () => {
+            return Math.round(Math.random() * (3 - 1)) + 1;
+        }
+
+        this.object.state.stand = false;
+
+        let rnd = 0;
+        if(frame % 20 === 0) {
+            rnd = getRandom();
+        }
+        console.log(rnd * velocity);
+
+        if(!collision.left && frame % 3 === 0) {
+            sprite.direction = 1;
+            position.x[0] -= (velocity * rnd);
+            position.x[1] -= (velocity * rnd);
+        }
+
+        console.log(collision);
+    }
 }
