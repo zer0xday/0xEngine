@@ -46,29 +46,34 @@ class Movement {
     };
 
     move() {
-        let { position, velocity, collision } = this.object;
-        let keyState = this.CONTROLLER.init();
+        const {
+            velocity, collision,
+            direction, state
+        } = this.object;
+        let { position } = this.object;
 
-        if(keyState[39] && !collision.right) {
-            position.x[0] += velocity;
-            position.x[1] += velocity;
-        }
-        if(keyState[37] && !collision.left) {
-            position.x[0] -= velocity;
-            position.x[1] -= velocity;
-        }
+        if(state.moving) {
+            if(direction.right && !collision.right) {
+                position.x[0] += velocity;
+                position.x[1] += velocity;
+            }
+            if(direction.left && !collision.left) {
+                position.x[0] -= velocity;
+                position.x[1] -= velocity;
+            }
 
-        if(keyState[40] && !collision.bottom) {
-            position.y[0] += velocity;
-            position.y[1] += velocity;
-            position.z[0] += velocity;
-            position.z[1] += velocity;
-        }
-        if(keyState[38] && !collision.top) {
-            position.y[0] -= velocity;
-            position.y[1] -= velocity;
-            position.z[0] -= velocity;
-            position.z[1] -= velocity;
+            if(direction.bottom && !collision.bottom) {
+                position.y[0] += velocity;
+                position.y[1] += velocity;
+                position.z[0] += velocity;
+                position.z[1] += velocity;
+            }
+            if(direction.top && !collision.top) {
+                position.y[0] -= velocity;
+                position.y[1] -= velocity;
+                position.z[0] -= velocity;
+                position.z[1] -= velocity;
+            }
         }
     };
 

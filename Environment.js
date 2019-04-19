@@ -117,7 +117,7 @@ class Enemy extends Hero {
     draw() {
         this.frame++;
         this.collisionCheck();
-        this.moveBot();
+        // this.moveBot();
         this.animateSprite();
         this.collisionRect();
     }
