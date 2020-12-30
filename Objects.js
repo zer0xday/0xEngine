@@ -71,7 +71,7 @@ class Rect {
         this.width = width;
         this.height = height;
         this.depth = depth;
-        this.src = '/sprites/' + src;
+        this.src = './sprites/' + src;
         this.position = {
             x: [x, x + this.width],
             y: [y, y + this.height],
@@ -114,7 +114,7 @@ class Wall extends Rect {
         super();
         this.type = this.constructor.name;
         this.depth = depth;
-        this.src = '/sprites/' + src;
+        this.src = './sprites/' + src;
         this.parts = parts;
         this.sWidth = sWidth;
         this.sHeight = sHeight;
@@ -231,7 +231,7 @@ class Ground {
         this.y = y;
         this.width = width;
         this.height = height;
-        this.src = '/sprites/' + src;
+        this.src = './sprites/' + src;
     }
 
     draw() {
