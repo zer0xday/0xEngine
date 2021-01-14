@@ -3,7 +3,7 @@ class Map {
         this.ground = new Ground(64, 64, 64, 64, 'grass.png')
         this.walls = [
             new Wall(80, 50, 'horizontal', 5, 64 / 4, 64, 64, 'wall-top.png'),
-            new Wall( (64 * 5) + 80, 50, 'vertical', 5, 16, 16, 64, 'wall-right-roof.png', 0, 48, 48),
+            new Wall((64 * 5) + 80, 50, 'vertical', 5, 16, 16, 64, 'wall-right-roof.png', 0, 48, 48),
             new Wall(96, (64 * 6) - 14, 'horizontal', 5, 64 / 4, 64, 64, 'wall-top.png'),
         ];
         this.trees = [
@@ -36,8 +36,8 @@ class Map {
 
     staticObjectsArray(...objects) {
         let array = [];
-        for(let obj of objects) {
-            obj.forEach( (el) => {
+        for (let obj of objects) {
+            obj.forEach((el) => {
                 array.push([
                     el.position.x[0] + el.offset.x,
                     el.position.x[1] - el.offset.x,
@@ -62,9 +62,9 @@ class Map {
 
 class Rect {
     constructor(
-            x, y, depth, width, height, src,
-            offsetX = null, offsetY = null, offsetZ = null
-        ) {
+        x, y, depth, width, height, src,
+        offsetX = null, offsetY = null, offsetZ = null
+    ) {
         this.type = this.constructor.name;
         this.CANVAS = new Canvas;
         this.ctx = this.CANVAS.fgCtx;
@@ -85,8 +85,8 @@ class Rect {
     };
 
     collisionRect() {
-        const { x, y, z } = this.position;
-        const { ctx, width, height, depth, offset } = this;
+        const {x, y, z} = this.position;
+        const {ctx, width, height, depth, offset} = this;
         ctx.beginPath();
         ctx.rect(x[0], y[0], width, height);
         ctx.rect(x[0] + offset.x, z[0], width - offset.x * 2, depth);
@@ -95,22 +95,22 @@ class Rect {
     }
 
     draw() {
-        const { ctx } = this;
+        const {ctx} = this;
         let img = new Image;
         img.src = this.src;
 
         this.collisionRect();
 
-        const { x, y } = this.position;
+        const {x, y} = this.position;
         ctx.drawImage(img, x[0], y[0], this.width, this.height);
     }
-};
+}
 
 class Wall extends Rect {
     constructor(
-            x, y, direction, parts, depth, sWidth, sHeight,
-            src, offsetX = null, offsetY = null, offsetZ = null
-        ) {
+        x, y, direction, parts, depth, sWidth, sHeight,
+        src, offsetX = null, offsetY = null, offsetZ = null
+    ) {
         super();
         this.type = this.constructor.name;
         this.depth = depth;
@@ -134,9 +134,9 @@ class Wall extends Rect {
     };
 
     calculatePosition() {
-        const { direction, width, height, depth } = this;
+        const {direction, width, height, depth} = this;
 
-        switch(direction.toLowerCase()) {
+        switch (direction.toLowerCase()) {
             case 'horizontal':
                 return {
                     x: [x, x + width],
@@ -151,15 +151,16 @@ class Wall extends Rect {
                     z: [(y + height) - depth, y + height]
                 }
 
-            default: break;
+            default:
+                break;
         }
     }
 
     calculateDimensions(direction) {
-        const { sWidth, sHeight, parts } = this;
+        const {sWidth, sHeight, parts} = this;
         let width, height;
 
-        switch(direction.toLowerCase()) {
+        switch (direction.toLowerCase()) {
             case 'horizontal':
                 width = sWidth * parts;
                 height = sHeight;
@@ -171,7 +172,7 @@ class Wall extends Rect {
                 break;
 
             default:
-                width = 0,
+                width = 0;
                 height = 0;
                 break;
         }
@@ -191,9 +192,9 @@ class Wall extends Rect {
         let img = new Image;
         img.src = src;
 
-        switch(direction.toLowerCase()) {
+        switch (direction.toLowerCase()) {
             case 'horizontal':
-                for(let i = 0; i < parts; i++) {
+                for (let i = 0; i < parts; i++) {
                     ctx.drawImage(
                         img,
                         position.x[0] + (sWidth * i), position.y[0],
@@ -203,7 +204,7 @@ class Wall extends Rect {
                 break;
 
             case 'vertical':
-                for(let i = 0; i < parts; i++) {
+                for (let i = 0; i < parts; i++) {
                     ctx.drawImage(
                         img,
                         position.x[0], position.y[0] + (sHeight * i),
@@ -212,12 +213,13 @@ class Wall extends Rect {
                 }
                 break;
 
-            default: break;
+            default:
+                break;
         }
     }
 
     draw() {
-        const { direction } = this;
+        const {direction} = this;
         this.buildWall(direction);
         this.collisionRect();
     }
@@ -238,9 +240,9 @@ class Ground {
         let img = new Image;
         img.src = this.src;
 
-        const { ctx, x, y, width, height } = this;
-        for(let j = 0; j < 8; j++) {
-            for(let i = 0; i < 10; i++) {
+        const {ctx, x, y, width, height} = this;
+        for (let j = 0; j < 8; j++) {
+            for (let i = 0; i < 10; i++) {
                 ctx.drawImage(
                     img,
                     (x * i), (y * j),

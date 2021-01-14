@@ -14,8 +14,8 @@ class Engine {
     };
 
     update() {
-        const { width, height } = this.CANVAS.resolution;
-        for(let i in this.ctx) {
+        const {width, height} = this.CANVAS.resolution;
+        for (let i in this.ctx) {
             this.ctx[i].clearRect(0, 0, width, height);
         }
         // this.ctx.clearRect(0, 0, width, height);
@@ -24,10 +24,10 @@ class Engine {
     drawings() {
         this.GROUND.draw();
         // draw objects
-        for(let obj of this.staticObjects) {
+        for (let obj of this.staticObjects) {
             obj.draw();
         }
-        for(let enemy of this.enemies) {
+        for (let enemy of this.enemies) {
             enemy.draw();
         }
         // draw hero
@@ -44,5 +44,4 @@ class Engine {
         console.log('initialized engine');
         this.render();
     };
-};
-
+}

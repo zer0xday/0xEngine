@@ -1,14 +1,14 @@
 class Hero extends Rect {
     constructor(x, y, depth, width, height, src) {
         super(x, y, depth, width, height, src);
-        this.state = { stand: true, moving: false };
+        this.state = {stand: true, moving: false};
         this.direction = {
             right: false,
             left: false,
-            bottom: false,
+            bottom: true,
             top: false
         };
-        this.shooting = false;
+        this.shooting = true;
         this.velocity = 2;
         this.collision = {
             right: false,
@@ -16,7 +16,7 @@ class Hero extends Rect {
             bottom: false,
             top: false
         };
-        this.frame = 0,
+        this.frame = 0;
         this.sprite = {
             direction: 2, // lets start with sprite directed to the bottom
             frame: 0
@@ -24,6 +24,7 @@ class Hero extends Rect {
 
         this.MOVEMENT = new Movement(this);
         this.PHYSICS = new Physics(this);
+        this.PROJECTILE = new Projectile(this);
     };
 
     collisionCheck() {
@@ -48,26 +49,26 @@ class Hero extends Rect {
             sY: height, // pos y
         };
 
-        const { sH, sW, sX, sY } = sprite;
+        const {sH, sW, sX, sY} = sprite;
 
         // directions
-        const { top, left, right, bottom } = this.direction;
+        const {top, left, right, bottom} = this.direction;
 
-        if(top) {
+        if (top) {
             this.sprite.direction = 0;
-        } else if(left) {
+        } else if (left) {
             this.sprite.direction = 1;
-        } else if(bottom) {
+        } else if (bottom) {
             this.sprite.direction = 2;
-        } else if(right) {
+        } else if (right) {
             this.sprite.direction = 3;
         }
 
         // animate sprites
-        const { stand } = this.state;
-        if(!stand) {
-            if(this.frame % 5 === 0) {
-                if(this.sprite.frame > 6) {
+        const {stand} = this.state;
+        if (!stand) {
+            if (this.frame % 5 === 0) {
+                if (this.sprite.frame > 6) {
                     this.sprite.frame = 0;
                 }
                 this.sprite.frame++;
@@ -77,7 +78,7 @@ class Hero extends Rect {
         }
 
         // draw sprite
-        const { frame, direction } = this.sprite;
+        const {frame, direction} = this.sprite;
 
         ctx.drawImage(
             img,
@@ -89,11 +90,11 @@ class Hero extends Rect {
     };
 
     shotsFired() {
-        const { shooting } = this;
-        if(shooting) {
-            const projectile = new Projectile(this);
-            projectile.fire();
+        if (this.shooting) {
+            this.PROJECTILE.fire();
         }
+
+        this.PROJECTILE.updatePositions();
     };
 
     draw() {
@@ -111,7 +112,6 @@ class Enemy extends Hero {
     }
 
     moveBot() {
-        this.MOVEMENT.moveAI();
     }
 
     draw() {
@@ -123,41 +123,104 @@ class Enemy extends Hero {
     }
 }
 
-
 class Projectile {
     constructor(owner) {
         this.CANVAS = new Canvas;
         this.ctx = this.CANVAS.fgCtx;
         this.owner = owner;
-        this.active = owner.shooting;
-        this.velocity = 10;
-        this.position = {
-            x: [this.owner.position.x[0], this.owner.position.x[1]],
-            y: [this.owner.position.y[0], this.owner.position.y[1]]
-        };
-        this.direction = owner.direction;
+        this.velocity = 3.5;
+        this.objects = [];
+        this.delay = 200; // ms
+        this.lifeTime = 3000; // ms
+        this.nextFireTime = null;
     };
 
     create() {
+        this.nextFireTime = this.getNextFireTime();
+        const direction = this.owner.direction;
+        const startPosition = {
+            x: [this.owner.position.x[0], this.owner.position.x[1]],
+            y: [this.owner.position.y[0], this.owner.position.y[1]]
+        };
+
+        this.setPositionByDirection(direction, startPosition);
+
+        this.objects.push({
+            startPosition,
+            direction,
+            finishAt: this.getFinishedAt()
+        });
+    }
+
+    getNextFireTime() {
+        return performance.now() + this.delay;
+    }
+
+    getFinishedAt() {
+        return performance.now() + this.lifeTime;
+    }
+
+    setPositionByDirection(direction, position) {
+        if (direction.top) {
+            this.fillCtxArea(this.getCenteredPosition(position.x), position.y[0]);
+        } else if (direction.left) {
+            this.fillCtxArea(position.x[0], this.getCenteredPosition(position.y));
+        } else if (direction.bottom) {
+            this.fillCtxArea(this.getCenteredPosition(position.x), position.y[1]);
+        } else if (direction.right) {
+            this.fillCtxArea(position.x[1], this.getCenteredPosition(position.y));
+        }
+    }
+
+    fillCtxArea(x, y, radius = 5, startAngle = 0, endAngle = 2 * Math.PI) {
         this.ctx.fillStyle = "#FF0000";
         this.ctx.beginPath();
-
-        const { top, right, bottom, left } = this.direction;
-        const { x, y } = this.position;
-        if(top) {
-            this.ctx.arc( (x[0] + x[1]) / 2, y[0], 10, 0, 2 * Math.PI);
-        } else if(left) {
-            this.ctx.arc( x[0], (y[0] + y[1]) / 2, 10, 0, 2 * Math.PI);
-        } else if(bottom) {
-            this.ctx.arc( (x[0] + x[1]) / 2, y[1], 10, 0, 2 * Math.PI);
-        } else if(right) {
-            this.ctx.arc( x[1], (y[0] + y[1]) / 2, 10, 0, 2 * Math.PI);
-        }
-
+        this.ctx.arc(x, y, radius, startAngle, endAngle);
         this.ctx.fill();
     }
 
-    fire() {
-        this.create();
+    getCenteredPosition(position) {
+        return (position[0] + position[1]) / 2;
     }
-};
+
+    canBeFiredAgain() {
+        return performance.now() > this.nextFireTime;
+    }
+
+    projectileFinished(finishTime) {
+        return performance.now() > finishTime;
+    }
+
+    updatePositions() {
+        this.objects.forEach((projectile) => {
+            if (this.projectileFinished(projectile.finishAt)) {
+                return this.objects.shift();
+            }
+
+            if (projectile.direction.left) {
+                projectile.startPosition.x[0] -= this.velocity;
+                projectile.startPosition.x[1] -= this.velocity;
+            } else if (projectile.direction.right) {
+                projectile.startPosition.x[0] += this.velocity;
+                projectile.startPosition.x[1] += this.velocity;
+            } else if (projectile.direction.bottom) {
+                projectile.startPosition.y[0] += this.velocity;
+                projectile.startPosition.y[1] += this.velocity;
+            } else if (projectile.direction.top) {
+                projectile.startPosition.y[0] -= this.velocity;
+                projectile.startPosition.y[1] -= this.velocity;
+            }
+
+            this.fillCtxArea(
+                this.getCenteredPosition(projectile.startPosition.x),
+                this.getCenteredPosition(projectile.startPosition.y)
+            );
+        });
+    }
+
+    fire() {
+        if (this.canBeFiredAgain()) {
+            this.create();
+        }
+    }
+}

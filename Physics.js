@@ -2,15 +2,20 @@ class Physics {
     constructor(object) {
         this.object = object;
         this.GRAVITY = 5;
+        this.MAP = new Map;
+    }
+
+    projectileCollisionDetection() {
+        const projectile = this.object.PROJECTILE;
+        const projectilesArray = projectile.objects;
     }
 
     collisionDetection() {
-        const map = new Map;
         let hero = this.object;
         hero.collision.right = false; hero.collision.left = false;
         hero.collision.bottom = false; hero.collision.top = false;
 
-        return this.calculateCollision(map.staticObjectsArray, hero);
+        return this.calculateCollision(this.MAP.staticObjectsArray, hero);
     }
 
     calculateCollision(collisionArray, hero) {
